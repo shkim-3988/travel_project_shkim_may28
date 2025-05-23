@@ -78,6 +78,45 @@
                 <label for="{{ form.budget.id_for_label }}">예산</label>
                 {{ form.budget }}
             </div>
+
+            <!-- 여행 목적 -->
+            <div class="form-group">
+              <label class="form-label">{{ form.travel_purpose.label }}</label>
+              <div class="checkbox-wrapper">
+                {% for checkbox in form.travel_purpose %}
+                  <label class="checkbox-item">
+                    {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+              {% if form.travel_purpose.errors %}<div class="error">{{ form.travel_purpose.errors }}</div>{% endif %}
+            </div>
+
+            <!-- 여행 스타일 -->
+            <div class="form-group">
+              <label class="form-label">{{ form.travel_style.label }}</label>
+              <div class="checkbox-wrapper">
+                {% for checkbox in form.travel_style %}
+                  <label class="checkbox-item">
+                    {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+              {% if form.travel_style.errors %}<div class="error">{{ form.travel_style.errors }}</div>{% endif %}
+            </div>
+
+            <!-- 중요 요소 -->
+            <div class="form-group">
+              <label class="form-label">{{ form.important_factors.label }}</label>
+              <div class="checkbox-wrapper">
+                {% for checkbox in form.important_factors %}
+                  <label class="checkbox-item">
+                    {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+              {% if form.important_factors.errors %}<div class="error">{{ form.important_factors.errors }}</div>{% endif %}
+            </div>
         </div>
 
         <div class="text-center">

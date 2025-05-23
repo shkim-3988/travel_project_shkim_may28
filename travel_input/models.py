@@ -32,12 +32,12 @@ class ImportantFactor(models.Model):
         return self.name
 
 class Schedule(models.Model):
-    title = models.CharField(max_length=200, verbose_name='\uc77c\uc815 \uc81c\ubaa9')
-    destination = models.ForeignKey(Destination, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="\uc5ec\ud589\uc9c0")
-    start_date = models.DateField(verbose_name='\uc2dc\uc791\uc77c')
-    end_date = models.DateField(null=True, blank=True, verbose_name='\uc885\ub8cc\uc77c')
-    budget = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True, verbose_name='\uc608\uc0b0')
-    notes = models.TextField(max_length=5000, null=True, blank=True, verbose_name='\uba54\ubaa8')
+    title = models.CharField(max_length=200, verbose_name='일정 제목')
+    destination = models.ForeignKey(Destination, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="여행지")
+    start_date = models.DateTimeField(verbose_name='시작일시')
+    end_date = models.DateTimeField(null=True, blank=True, verbose_name='종료일시')
+    budget = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True, verbose_name='예산')
+    notes = models.TextField(max_length=5000, null=True, blank=True, verbose_name='메모')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='schedules', verbose_name='\uc0ac\uc6a9\uc790')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -66,8 +66,9 @@
 
     .features-container {
         padding: 60px 0;
-        max-width: max-content;
+        max-width: 100%; /* 너비를 더 넓게 조정 */
         margin: 0 auto;
+        margin-bottom: 40px; /* hero-section 아래쪽 마진과 동일하게 설정 */
         background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
         backdrop-filter: blur(5px);
@@ -75,7 +76,7 @@
 
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 이미지에 맞게 3열로 수정 */
+        grid-template-columns: 1fr; /* '스마트 일정 관리'만 남도록 수정 */
         gap: 30px;
         padding: 0 20px;
     }
@@ -131,7 +132,7 @@
     }
 
     .feature-title {
-        font-size: 1.6rem;
+        font-size: 2rem;
         color: #2c3e50;
         margin-bottom: 15px;
         font-weight: bold;
@@ -316,7 +317,7 @@
 
     @media (max-width: 992px) {
         .features-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
         }
         .info-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -351,12 +352,13 @@
 
 {% block content %}
 <div class="container">
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <h1>당신의 완벽한 여행을 설계하세요</h1>
-        <p>복잡한 여행 계획은 이제 그만. 스마트 일정 관리, 맞춤형 장소 추천, 예산 계획까지 한 곳에서 편리하게 이용하세요.</p>
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <h2>지금 바로 여행 계획 시작하기</h2>
+        <p>모두투어와 함께라면 나만의 특별한 여행을 만들 수 있습니다. 간단한 절차로 지금 바로 여행 계획을 시작해보세요!</p>
+        <a href="{% url 'travel_input:schedule_create' %}" class="cta-button animate__animated animate__pulse animate__infinite">여행 시작하기</a>
     </div>
-
+    
     <!-- Features Section 1 -->
     <div class="features-container">
         <div class="features-grid">
@@ -366,26 +368,13 @@
                 <p class="feature-description">여행 일정을 손쉽게 계획하고 관리하세요. 실시간으로 업데이트되는 일정으로 여행을 더욱 효율적으로 즐길 수 있습니다.</p>
                 <span class="feature-link">일정 만들기</span>
             </a>
-            <a href="#" class="feature-card animate__animated animate__fadeInUp animate__delay-0.2s">
-                 <i class="fas fa-map-marker-alt feature-icon"></i>
-                <h3 class="feature-title">맞춤형 장소 추천</h3>
-                <p class="feature-description">여행 취향과 관심사에 맞춰 최적의 장소를 추천받으세요. 숨겨진 명소부터 인기 맛집까지, 완벽한 코스를 계획할 수 있습니다.</p>
-                <span class="feature-link">장소 보기</span>
-            </a>
-            <a href="#" class="feature-card animate__animated animate__fadeInUp animate__delay-0.4s">
-                <i class="fas fa-money-bill-wave feature-icon"></i>
-                <h3 class="feature-title">예산 계획</h3>
-                <p class="feature-description">여행 경비를 효율적으로 관리하세요. 예산 설정부터 지출 추적까지, 스마트한 예산 관리를 통해 불필요한 지출을 줄일 수 있습니다.</p>
-                <span class="feature-link">예산 계획</span>
-            </a>
         </div>
     </div>
 
-    <!-- CTA Section -->
-    <div class="cta-section">
-        <h2>지금 바로 여행 계획 시작하기</h2>
-        <p>모두투어와 함께라면 나만의 특별한 여행을 만들 수 있습니다. 간단한 절차로 지금 바로 여행 계획을 시작해보세요!</p>
-        <a href="{% url 'travel_input:schedule_create' %}" class="cta-button animate__animated animate__pulse animate__infinite">여행 시작하기</a>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>당신의 완벽한 여행을 설계하세요</h1>
+        <p>복잡한 여행 계획은 이제 그만. 스마트 일정 관리, 맞춤형 장소 추천, 예산 계획까지 한 곳에서 편리하게 이용하세요.</p>
     </div>
 
     <!-- Features Section 2 (Based on bottom part of image) -->

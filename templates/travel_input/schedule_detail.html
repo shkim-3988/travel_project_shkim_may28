@@ -5,6 +5,34 @@
 {% block extra_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/schedule_detail.css' %}">
+<style>
+  /* 비활성화된 버튼에 스타일 적용 */
+  #sentiment-analysis-button:disabled {
+    cursor: not-allowed !important; /* 금지 커서 강제 적용 */
+    background-color: #cccccc !important; /* 연한 회색 배경 강제 적용 */
+    color: #666666; /* 글자색 조정 (필요하다면) */
+    border-color: #cccccc; /* 테두리색 조정 (필요하다면) */
+    opacity: 1; /* opacity로 흐려지는 것을 방지 (프레임워크 기본 스타일 재정의) */
+  }
+  /* 로딩 중 버튼 스타일 */
+  #sentiment-analysis-button.is-loading {
+    cursor: not-allowed !important; /* 금지 커서 강제 적용 */
+    background-color: #cccccc; /* 연한 회색 배경 */
+    color: #666666; /* 글자색 조정 */
+    border-color: #cccccc; /* 테두리색 조정 */
+    opacity: 1; /* 흐림 방지 */
+  }
+  /* 기존 비활성화 스타일은 삭제 또는 주석 처리 */
+  /*
+  .btn.btn-secondary:disabled {
+    cursor: not-allowed !important;
+    background-color: #cccccc !important;
+    color: #666666;
+    border-color: #cccccc;
+    opacity: 1;
+  }
+  */
+</style>
 {% endblock %}
 
 {% block content %}
@@ -57,7 +85,13 @@
     {% if ai_intro_text %}
       <div class="ai-intro-text">
           <span>핵심 키워드: {{ ai_intro_text }}</span>
-          <a href="{% url 'blog:sentiment_analysis' %}?query={{ ai_intro_text|urlencode }}" class="btn btn-sm btn-secondary ms-3">블로그 감성 분석</a>
+          <a href="{% url 'blog:sentiment_analysis' %}?query={{ ai_intro_text|urlencode }}" class="btn btn-sm btn-secondary ms-3" id="sentiment-analysis-button">
+            블로그 감성 분석
+          </a>
+          <!-- 로딩 스피너 -->
+          <div class="spinner-border spinner-border-sm text-secondary ms-2" role="status" id="sentiment-analysis-spinner" style="display: none;">
+            <span class="visually-hidden">Loading...</span>
+          </div>
       </div>
     {% endif %}
 
@@ -66,7 +100,7 @@
     <form method="post" action="" class="ai-feedback-form">
       {% csrf_token %}
       <input type="hidden" name="submit_feedback" value="1">
-          <textarea name="user_feedback" class="form-control me-2" rows="3" placeholder="이 일정에 대한 개선 의견을 입력해 주세요.">{{ schedule.user_feedback }}</textarea>
+          <textarea name="user_feedback" class="form-control me-2" rows="3" placeholder="이 일정에 대한 개선 의견을 입력해 주세요." style="resize: none !important;">{% if schedule.user_feedback and schedule.user_feedback != 'None' %}{{ schedule.user_feedback }}{% endif %}</textarea>
           <button type="submit" class="btn btn-outline-primary">AI에게 개선 요청</button>
     </form>
 
@@ -101,6 +135,44 @@ document.addEventListener('DOMContentLoaded', function() {
             form.submit(); // 폼 제출
         }
     });
+
+    // 블로그 감성 분석 버튼 클릭 시 스피너 표시 및 버튼 비활성화
+    const sentimentButton = document.getElementById('sentiment-analysis-button');
+    const sentimentSpinner = document.getElementById('sentiment-analysis-spinner');
+
+    if (sentimentButton && sentimentSpinner) {
+        sentimentButton.addEventListener('click', function(event) {
+            // 링크 기본 동작 방지
+            event.preventDefault();
+
+            // 이미 로딩 중이면 중복 클릭 무시
+            if (sentimentButton.classList.contains('is-loading')) {
+                return;
+            }
+
+            // 버튼에 로딩 클래스 추가
+            sentimentButton.classList.add('is-loading');
+            // 버튼 비활성화
+            sentimentButton.disabled = true; // 의미적으로 비활성화 상태 표시
+            // 스피너 표시
+            sentimentSpinner.style.display = 'inline-block';
+
+            // 링크 이동 (지연 시간 후 또는 비동기 작업 완료 후 가능)
+            // 여기서는 기본 동작을 막았으므로, 수동으로 이동
+            window.location.href = sentimentButton.href;
+        });
+
+        // 페이지 로드 또는 bfcache 복원 시 스피너 숨김 및 버튼 상태 초기화
+        window.addEventListener('pageshow', function(event) {
+            console.log(event.persisted ? 'Page restored from bfcache.' : 'Page loaded normally.');
+            // 스피너 숨김
+            sentimentSpinner.style.display = 'none';
+            // 버튼 로딩 클래스 제거
+            sentimentButton.classList.remove('is-loading');
+            // 버튼 다시 활성화
+            sentimentButton.disabled = false;
+        });
+    }
 });
 </script>
 {% endblock %}

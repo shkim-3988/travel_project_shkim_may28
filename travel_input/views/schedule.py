@@ -7,6 +7,7 @@ import random
 from faker import Faker
 from openai import OpenAI
 from django.conf import settings
+import json
 
 from travel_input.forms import ScheduleForm
 from travel_input.models import Schedule, Destination
@@ -298,7 +299,32 @@ def migrate_schedules(request):
 
 @login_required
 def api_schedules(request):
-    schedules = Schedule.objects.filter(user=request.user).values(
-        'id', 'title', 'destination__name', 'start_date', 'end_date'
-    )
-    return JsonResponse(list(schedules), safe=False)
+    schedules = Schedule.objects.filter(user=request.user)
+    events = []
+    for s in schedules:
+        events.append({
+            'title': s.title,
+            'start': s.start_date.isoformat(),
+            'end': s.end_date.isoformat() if s.end_date else s.start_date.isoformat(),
+            'url': f'/travel/schedule/{s.id}/'
+        })
+    return JsonResponse(events, safe=False)
+
+@login_required
+def delete_selected_schedules(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            selected_ids = data.get('schedule_ids', [])
+            if not selected_ids:
+                return JsonResponse({'success': False, 'error': '선택된 일정이 없습니다.'}, status=400)
+
+            # 사용자 소유의 일정만 삭제하도록 필터링
+            deleted_count, _ = Schedule.objects.filter(user=request.user, id__in=selected_ids).delete()
+            return JsonResponse({'success': True, 'deleted_count': deleted_count})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': '잘못된 JSON 형식입니다.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'error': 'POST 요청만 허용됩니다.'}, status=405)

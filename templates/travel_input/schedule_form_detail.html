@@ -129,6 +129,45 @@
             </div>
         </div>
 
+        <!-- 여행 목적 -->
+        <div class="form-section">
+            <h3><i class="fas fa-bullseye"></i>여행 목적</h3>
+            <div class="checkbox-wrapper">
+              {% for checkbox in form.travel_purpose %}
+                <label class="checkbox-item">
+                  {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if form.travel_purpose.errors %}<div class="error">{{ form.travel_purpose.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 여행 스타일 -->
+        <div class="form-section">
+            <h3><i class="fas fa-hiking"></i>여행 스타일</h3>
+            <div class="checkbox-wrapper">
+              {% for checkbox in form.travel_style %}
+                <label class="checkbox-item">
+                  {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if form.travel_style.errors %}<div class="error">{{ form.travel_style.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 중요 요소 -->
+        <div class="form-section">
+            <h3><i class="fas fa-star"></i>중요 요소</h3>
+            <div class="checkbox-wrapper">
+              {% for checkbox in form.important_factors %}
+                <label class="checkbox-item">
+                  {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if form.important_factors.errors %}<div class="error">{{ form.important_factors.errors }}</div>{% endif %}
+        </div>
+
         <!-- 추가 상세 정보 -->
         <div class="form-section">
             <h3><i class="fas fa-plus-circle"></i>추가 상세 정보</h3>
