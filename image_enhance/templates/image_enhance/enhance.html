@@ -160,28 +160,27 @@ document.addEventListener('DOMContentLoaded', () => {
     enhanceForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // 버튼 비활성화 및 로딩 스피너 표시
         enhanceButton.disabled = true;
         loadingSpinner.classList.remove('d-none');
         buttonText.textContent = '처리 중...';
 
-        // FormData 생성 및 전송
         const formData = new FormData(this);
         
-        fetch('{% url "image_enhance:enhance" %}', {
+        fetch('{% url "image_enhance:process" %}', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                window.location.href = data.redirect_url;
+                window.location.href = '{% url "image_enhance:result" %}?input=' + encodeURIComponent(data.input_url) + '&output=' + encodeURIComponent(data.output_url);
             } else {
                 alert(data.error || '이미지 개선 중 오류가 발생했습니다.');
-                // 에러 발생 시 버튼 상태 복구
                 enhanceButton.disabled = false;
                 loadingSpinner.classList.add('d-none');
                 buttonText.textContent = '이미지 개선';
@@ -190,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error('Error:', error);
             alert('이미지 개선 중 오류가 발생했습니다.');
-            // 에러 발생 시 버튼 상태 복구
             enhanceButton.disabled = false;
             loadingSpinner.classList.add('d-none');
             buttonText.textContent = '이미지 개선';
