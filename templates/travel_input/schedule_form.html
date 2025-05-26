@@ -32,29 +32,64 @@
     color: #333;
   }
   .checkbox-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    /* display: flex; */ /* 주석 처리 또는 제거 */
+    /* flex-direction: column; */ /* 주석 처리 또는 제거 */
+    /* gap: 8px; */ /* 이전 설정 제거 */
     margin-top: 10px;
+    /* max-height: 200px; */ /* 삭제 */
+    /* overflow-y: auto; */ /* 삭제 */
+    /* padding-right: 15px; */ /* 삭제 */
+    display: grid; /* 그리드 레이아웃 다시 적용 */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 자동으로 열 너비 조정 */
+    gap: 15px; /* 그리드 항목 간 간격 (행/열 모두) - 적절한 간격 설정 */
+    grid-auto-rows: 1fr; /* 행 높이를 자동으로 균등하게 분배 */
   }
-  .checkbox-item {
-    display: grid;
-    grid-template-columns: 10rem max-content;
-    align-items: center;
-    column-gap: 5px;
+  /* .checkbox-item { ... } */ /* 필요시 조정 */
+  /* .checkbox-item span { ... } */ /* 필요시 조정 */
+  /* .checkbox-item input[type="checkbox"] { ... } */ /* 필요시 조정 */
+
+  /* 체크박스 카드 스타일 */
+  .checkbox-card {
+      display: flex; /* 내부 요소 정렬 */
+      align-items: center; /* 세로 중앙 정렬 */
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px; /* 카드 내부 패딩 */
+      margin-bottom: 0; /* 그리드 gap 사용 시 0으로 설정 */
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: #f9f9f9;
+      height: 100%; /* 그리드 항목 내에서 꽉 채우도록 */
   }
-  .checkbox-item span {
-    grid-column: 1;
-    padding: 0 !important;
-    margin: 0 !important;
+  .checkbox-card:hover {
+      background-color: #e9e9e9;
+      border-color: #007acc;
   }
-  .checkbox-item input[type="checkbox"] {
-    grid-column: 2;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: auto !important;
+  .checkbox-card input[type="checkbox"] {
+      display: none; /* 체크박스 아이콘 숨김 */
   }
-  input, select {
+  .checkbox-card span {
+      /* vertical-align: middle; */ /* 제거 */
+      font-weight: normal; /* 기본 라벨 텍스트 두께 */
+      flex-grow: 1; /* 남은 공간 채우기 */
+  }
+  
+  /* 선택된 체크박스 카드 스타일 */
+  /* .checkbox-card input[type="checkbox"]:checked + span { ... } */ /* 글자 스타일 변경 제거 */
+   /* .checkbox-card input[type="checkbox"]:checked + span::before { ... } */ /* 체크 표시 유니코드 제거 */
+
+    /* 체크된 체크박스 바로 뒤에 오는 라벨(카드) 스타일 */
+    /* .checkbox-card input[type="checkbox"]:checked + span + span { ... } */ /* 제거 */
+    /* .checkbox-card input[type="checkbox"]:checked ~ span { ... } */ /* 제거 */
+    
+    /* 가장 좋은 방법은 라벨에 상태 클래스를 토글하는 것 - 이 스타일을 사용 */
+    .checkbox-card.selected {
+        background-color: #e0f2ff; /* 선택 시 배경색 */
+        border-color: #007acc;
+        box-shadow: 0 0 5px rgba(0, 122, 204, 0.5); /* 선택 시 그림자 효과 추가 (선택 사항) */
+    }
+  
+  input, select, textarea {
     width: 100%;
     padding: 12px 14px;
     border: 1px solid #ccc;
@@ -95,166 +130,298 @@
   .sub-region-select.active {
     display: block;
   }
+  
+  /* 멀티스텝 폼 스타일 */
+  .form-step {
+      display: none; /* 기본적으로 모든 단계 숨김 */
+  }
+  .form-step.active {
+      display: block; /* 활성 단계만 표시 */
+  }
+  .form-navigation {
+      margin-top: 30px;
+      text-align: center;
+  }
+  .form-navigation button {
+      margin: 0 10px;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="schedule-form-container">
   <h1 class="page-title">AI 여행 상담</h1>
-  <form method="post">
+  <form method="post" id="scheduleForm">
     {% csrf_token %}
 
-    <!-- 일정 제목 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.title.id_for_label }}">일정 제목</label>
-      {{ form.title }}
-      {% if form.title.errors %}<div class="error">{{ form.title.errors }}</div>{% endif %}
+    <!-- Step 1: 기본 정보 -->
+    <div class="form-step active">
+        <!-- 일정 제목 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.title.id_for_label }}">일정 제목</label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="error">{{ form.title.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 도시 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.city.id_for_label }}">도시</label>
+            {{ form.city }}
+            {% if form.city.errors %}<div class="error">{{ form.city.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 시작일 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.start_date.id_for_label }}">시작일</label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}<div class="error">{{ form.start_date.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 종료일 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.end_date.id_for_label }}">종료일</label>
+            {{ form.end_date }}
+            {% if form.end_date.errors %}<div class="error">{{ form.end_date.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-navigation">
+            <button type="button" class="btn btn-primary next-step">다음</button>
+        </div>
     </div>
 
-    <!-- 도시 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.city.id_for_label }}">도시</label>
-      {{ form.city }}
-      {% if form.city.errors %}<div class="error">{{ form.city.errors }}</div>{% endif %}
+    <!-- Step 2: 예산 및 메모 -->
+    <div class="form-step">
+        <!-- 예산 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.budget.id_for_label }}">예산</label>
+            {{ form.budget }}
+            {% if form.budget.errors %}<div class="error">{{ form.budget.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-navigation">
+            <button type="button" class="btn btn-secondary prev-step">이전</button>
+            <button type="button" class="btn btn-primary next-step">다음</button>
+        </div>
     </div>
 
-    <!-- 구/군/읍/면 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.district.id_for_label }}">구/군/읍/면</label>
-      {{ form.district }}
-      {% if form.district.errors %}<div class="error">{{ form.district.errors }}</div>{% endif %}
+    <!-- Step 3: 여행 목적 및 스타일 -->
+    <div class="form-step">
+        <!-- 여행 목적 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.travel_purpose.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.travel_purpose %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.travel_purpose.errors %}<div class="error">{{ form.travel_purpose.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 여행 스타일 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.travel_style.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.travel_style %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.travel_style.errors %}<div class="error">{{ form.travel_style.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="btn btn-secondary prev-step">이전</button>
+            <button type="button" class="btn btn-primary next-step">다음</button>
+        </div>
     </div>
 
-    <!-- 여행지 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.destination.id_for_label }}">여행지</label>
-      {{ form.destination }}
-      {% if form.destination.errors %}<div class="error">{{ form.destination.errors }}</div>{% endif %}
-      
-      <!-- 서울 세부 지역 선택 -->
-      <div id="seoul-sub-regions" class="sub-region-select">
-        <label class="form-label" for="sub-region">서울 세부 지역</label>
-        <select name="sub_region" id="sub-region" class="form-control">
-          <option value="">세부 지역 선택</option>
-          <option value="강남구">강남구</option>
-          <option value="강동구">강동구</option>
-          <option value="강북구">강북구</option>
-          <option value="강서구">강서구</option>
-          <option value="관악구">관악구</option>
-          <option value="광진구">광진구</option>
-          <option value="구로구">구로구</option>
-          <option value="금천구">금천구</option>
-          <option value="노원구">노원구</option>
-          <option value="도봉구">도봉구</option>
-          <option value="동대문구">동대문구</option>
-          <option value="동작구">동작구</option>
-          <option value="마포구">마포구</option>
-          <option value="서대문구">서대문구</option>
-          <option value="서초구">서초구</option>
-          <option value="성동구">성동구</option>
-          <option value="성북구">성북구</option>
-          <option value="송파구">송파구</option>
-          <option value="양천구">양천구</option>
-          <option value="영등포구">영등포구</option>
-          <option value="용산구">용산구</option>
-          <option value="은평구">은평구</option>
-          <option value="종로구">종로구</option>
-          <option value="중구">중구</option>
-          <option value="중랑구">중랑구</option>
-        </select>
-      </div>
+    <!-- Step 4: 추천 여행지 및 선호 액티비티 -->
+     <div class="form-step">
+        <!-- 추천 여행지 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.destinations.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.destinations %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.destinations.errors %}<div class="error">{{ form.destinations.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 선호 액티비티 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.activities.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.activities %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.activities.errors %}<div class="error">{{ form.activities.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="btn btn-secondary prev-step">이전</button>
+            <button type="button" class="btn btn-primary next-step">다음</button>
+        </div>
     </div>
 
-    <!-- 시작일 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.start_date.id_for_label }}">시작일</label>
-      {{ form.start_date }}
-      {% if form.start_date.errors %}<div class="error">{{ form.start_date.errors }}</div>{% endif %}
+    <!-- Step 5: 중요 요소 및 교통 수단 -->
+     <div class="form-step">
+        <!-- 중요 요소 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.important_factors.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.important_factors %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.important_factors.errors %}<div class="error">{{ form.important_factors.errors }}</div>{% endif %}
+        </div>
+
+        <!-- 교통 수단 -->
+        <div class="form-group">
+            <label class="form-label">{{ form.transportation_mode.label }}</label>
+            <div class="checkbox-wrapper">
+                {% for checkbox in form.transportation_mode %}
+                    <div>
+                        <label class="checkbox-card form-check-label">
+                            {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.transportation_mode.errors %}<div class="error">{{ form.transportation_mode.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="btn btn-secondary prev-step">이전</button>
+            <button type="button" class="btn btn-primary next-step">다음</button>
+        </div>
     </div>
 
-    <!-- 종료일 -->
-    <div class="form-group">
-      <label class="form-label" for="{{ form.end_date.id_for_label }}">종료일</label>
-      {{ form.end_date }}
-      {% if form.end_date.errors %}<div class="error">{{ form.end_date.errors }}</div>{% endif %}
+    <!-- Step 6: 연령대 및 제출 -->
+    <div class="form-step">
+        <!-- 연령대 -->
+        <div class="form-group">
+            <label class="form-label" for="{{ form.age_group.id_for_label }}">연령대</label>
+            {{ form.age_group }}
+            {% if form.age_group.errors %}<div class="error">{{ form.age_group.errors }}</div>{% endif %}
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="btn btn-secondary prev-step">이전</button>
+            <button type="submit" class="btn btn-primary">제출</button>
+        </div>
     </div>
 
-    <!-- 여행 목적 -->
-    <div class="form-group">
-      <label class="form-label">{{ form.travel_purpose.label }}</label>
-      <div class="checkbox-wrapper">
-        {% for checkbox in form.travel_purpose %}
-          <label class="checkbox-item">
-            <span>{{ checkbox.choice_label }}</span> {{ checkbox.tag }}
-          </label>
-        {% endfor %}
-      </div>
-      {% if form.travel_purpose.errors %}<div class="error">{{ form.travel_purpose.errors }}</div>{% endif %}
-    </div>
-
-    <!-- 여행 스타일 -->
-    <div class="form-group">
-      <label class="form-label">{{ form.travel_style.label }}</label>
-      <div class="checkbox-wrapper">
-        {% for checkbox in form.travel_style %}
-          <label class="checkbox-item">
-            <span>{{ checkbox.choice_label }}</span> {{ checkbox.tag }}
-          </label>
-        {% endfor %}
-      </div>
-      {% if form.travel_style.errors %}<div class="error">{{ form.travel_style.errors }}</div>{% endif %}
-    </div>
-
-    <!-- 중요 요소 -->
-    <div class="form-group">
-      <label class="form-label">{{ form.important_factors.label }}</label>
-      <div class="checkbox-wrapper">
-        {% for checkbox in form.important_factors %}
-          <label class="checkbox-item">
-            <span>{{ checkbox.choice_label }}</span> {{ checkbox.tag }}
-          </label>
-        {% endfor %}
-      </div>
-      {% if form.important_factors.errors %}<div class="error">{{ form.important_factors.errors }}</div>{% endif %}
-    </div>
-
-    <!-- 저장 버튼 -->
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">저장</button>
-      <a href="{% url 'travel_input:schedule_list' %}" class="btn btn-secondary">취소</a>
-    </div>
+    
   </form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const citySelect = document.querySelector('#{{ form.city.id_for_label }}');
-  const districtSelect = document.querySelector('#{{ form.district.id_for_label }}');
-  const destinationSelect = document.querySelector('#{{ form.destination.id_for_label }}');
-  const seoulSubRegions = document.querySelector('#seoul-sub-regions');
+  // const districtSelect = document.querySelector('#{{ form.district.id_for_label }}'); // 이 줄을 주석 처리 또는 제거합니다.
+  
+  // 여행지 필드 관련 스크립트 제거
+  // const destinationSelect = document.querySelector('#{{ form.destination.id_for_label }}');
+  // const seoulSubRegions = document.querySelector('#seoul-sub-regions');
 
   citySelect.addEventListener('change', function() {
     const cityId = this.value;
     if (cityId) {
-      fetch(`/travel/ajax/load-districts/?city=${cityId}`)
-        .then(response => response.text())
-        .then(html => {
-          districtSelect.innerHTML = html;
-          districtSelect.disabled = false;
-        });
+      // districtSelect 관련 로직 제거 또는 수정 필요
+      // fetch(`/travel/ajax/load-districts/?city=${cityId}`)
+      //   .then(response => response.text())
+      //   .then(html => {
+      //     districtSelect.innerHTML = html;
+      //     districtSelect.disabled = false;
+      //   });
     } else {
-      districtSelect.innerHTML = '<option value="">구/군/읍/면을 선택하세요</option>';
-      districtSelect.disabled = true;
+      // districtSelect 관련 로직 제거 또는 수정 필요
+      // districtSelect.innerHTML = '<option value="">구/군/읍/면을 선택하세요</option>';
+      // districtSelect.disabled = true;
     }
   });
 
-  destinationSelect.addEventListener('change', function() {
-    if (this.value === '서울') {
-      seoulSubRegions.classList.add('active');
-    } else {
-      seoulSubRegions.classList.remove('active');
-    }
+  // 여행지 필드 관련 스크립트 제거
+  // destinationSelect.addEventListener('change', function() {
+  //   if (this.value === '서울') {
+  //     seoulSubRegions.classList.add('active');
+  //   } else {
+  //     seoulSubRegions.classList.remove('active');
+  //   }
+  // });
+  
+  // 멀티스텝 폼 로직
+  const formSteps = document.querySelectorAll('.form-step');
+  const nextButtons = document.querySelectorAll('.next-step');
+  const prevButtons = document.querySelectorAll('.prev-step');
+  let currentStep = 0;
+
+  function showStep(stepIndex) {
+    formSteps.forEach((step, index) => {
+      step.classList.toggle('active', index === stepIndex);
+    });
+  }
+
+  nextButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // TODO: 현재 단계 유효성 검사 추가
+      if (currentStep < formSteps.length - 1) {
+          currentStep++;
+          showStep(currentStep);
+      }
+    });
   });
+
+  prevButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      if (currentStep > 0) {
+          currentStep--;
+          showStep(currentStep);
+      }
+    });
+  });
+
+  // 체크박스 카드 선택 스타일 적용
+  document.querySelectorAll('.checkbox-card input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+          if (this.checked) {
+              this.parentElement.classList.add('selected');
+          } else {
+              this.parentElement.classList.remove('selected');
+          }
+      });
+  });
+
+  // 초기 상태 설정 - 페이지 로드 시 첫 번째 단계 표시 및 선택된 카드 스타일 적용
+  showStep(currentStep);
+  // 페이지 로드 시 이미 선택된 체크박스에 대해 스타일 적용
+    document.querySelectorAll('.checkbox-card input[type="checkbox"]').forEach(checkbox => {
+        if (checkbox.checked) {
+            checkbox.parentElement.classList.add('selected');
+        }
+    });
 });
 </script>
 {% endblock %}

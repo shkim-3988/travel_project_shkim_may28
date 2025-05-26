@@ -15,7 +15,6 @@ class ScheduleForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
-            'notes': forms.Textarea(attrs={'rows': 4}),
             'budget': forms.NumberInput(attrs={'min': 0}),
         }
 

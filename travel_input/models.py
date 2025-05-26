@@ -19,6 +19,31 @@ class Destination(models.Model):
     def __str__(self):
         return self.name
 
+class Destination(models.Model):
+    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='destinations', verbose_name='도시')
+    name = models.CharField(max_length=200, verbose_name='여행지명')
+    description = models.TextField(blank=True, verbose_name='설명')
+
+    class Meta:
+        verbose_name = '여행지'
+        verbose_name_plural = '여행지'
+        ordering = ['city', 'name']
+
+    def __str__(self):
+        return f"{self.city.name} - {self.name}"
+
+class Activity(models.Model):
+    name = models.CharField(max_length=100, verbose_name='액티비티명')
+    description = models.TextField(blank=True, verbose_name='설명')
+
+    class Meta:
+        verbose_name = '액티비티'
+        verbose_name_plural = '액티비티'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 class TransportationCategory(models.Model):
     name = models.CharField(max_length=50)
     
