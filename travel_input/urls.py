@@ -20,6 +20,9 @@ from .views import (
 
     # API
     api_schedules,
+
+    # 새로운 뷰
+    load_districts
 )
 
 app_name = 'travel_input'
@@ -58,4 +61,7 @@ urlpatterns = [
 
     # 🔗 API
     path('api/schedules/', api_schedules, name='api_schedules'),
+
+    # 새로운 뷰
+    path('ajax/load-districts/', load_districts, name='ajax_load_districts'),
 ]

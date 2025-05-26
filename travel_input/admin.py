@@ -6,10 +6,63 @@ from .models import (
     PreferredWeather, WeatherCategory
 )
 
-@admin.register(Destination)
-class DestinationAdmin(admin.ModelAdmin):
-    list_display = ['name']
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_active', 'order']
+    list_filter = ['is_active']
     search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(District)
+class DistrictAdmin(admin.ModelAdmin):
+    list_display = ['name', 'city', 'is_active', 'order']
+    list_filter = ['city', 'is_active']
+    search_fields = ['name', 'city__name']
+    ordering = ['city', 'order', 'name']
+
+@admin.register(TransportationCategory)
+class TransportationCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'order']
+    search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(TransportationMode)
+class TransportationModeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'order']
+    list_filter = ['category']
+    search_fields = ['name', 'category__name']
+    ordering = ['category', 'order', 'name']
+
+@admin.register(TravelPurpose)
+class TravelPurposeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'order']
+    search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(TravelStyle)
+class TravelStyleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'order']
+    search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(ImportantFactor)
+class ImportantFactorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'order']
+    search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(WeatherCategory)
+class WeatherCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'order']
+    search_fields = ['name']
+    ordering = ['order', 'name']
+
+@admin.register(PreferredWeather)
+class PreferredWeatherAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'order']
+    list_filter = ['category']
+    search_fields = ['name', 'category__name']
+    ordering = ['category', 'order', 'name']
 
 @admin.register(TransportationCategory)
 class TransportationCategoryAdmin(admin.ModelAdmin):

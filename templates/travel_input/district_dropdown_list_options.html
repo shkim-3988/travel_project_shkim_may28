@@ -1,0 +1,4 @@
+<option value="">구/군/읍/면을 선택하세요</option>
+{% for district in districts %}
+<option value="{{ district.id }}">{{ district.name }}</option>
+{% endfor %} 

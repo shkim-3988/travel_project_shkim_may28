@@ -5,7 +5,7 @@ from .schedule import (
     toggle_favorite, favorite_schedules, calendar_view, calendar_events,
     generate_ai_style_schedules, generate_dummy_schedules, migrate_schedules,
     api_schedules,
-    delete_selected_schedules
+    delete_selected_schedules, load_districts
 )
 from .ai import ai_budget_view, ai_recommend_view, ai_summarize_view
 from .budget import budget_planning

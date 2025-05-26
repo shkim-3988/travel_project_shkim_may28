@@ -4,6 +4,116 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
+def create_initial_data(apps, schema_editor):
+    City = apps.get_model('travel_input', 'City')
+    District = apps.get_model('travel_input', 'District')
+    TransportationCategory = apps.get_model('travel_input', 'TransportationCategory')
+    TransportationMode = apps.get_model('travel_input', 'TransportationMode')
+    TravelPurpose = apps.get_model('travel_input', 'TravelPurpose')
+    TravelStyle = apps.get_model('travel_input', 'TravelStyle')
+    ImportantFactor = apps.get_model('travel_input', 'ImportantFactor')
+    WeatherCategory = apps.get_model('travel_input', 'WeatherCategory')
+    PreferredWeather = apps.get_model('travel_input', 'PreferredWeather')
+
+    # 기본 도시 생성
+    seoul = City.objects.create(
+        id=1,
+        name='서울',
+        is_active=True,
+        order=1
+    )
+
+    # 서울의 구 생성
+    districts = [
+        '강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구',
+        '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구',
+        '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'
+    ]
+    for i, name in enumerate(districts, 1):
+        District.objects.create(
+            city=seoul,
+            name=name,
+            is_active=True,
+            order=i
+        )
+
+    # 교통 카테고리 및 수단 생성
+    transport_categories = [
+        ('대중교통', [
+            '지하철', '버스', '택시', '기차'
+        ]),
+        ('자동차', [
+            '자가용', '렌터카', '카셰어링'
+        ]),
+        ('항공', [
+            '국내선', '국제선'
+        ])
+    ]
+    for i, (category_name, modes) in enumerate(transport_categories, 1):
+        category = TransportationCategory.objects.create(
+            name=category_name,
+            order=i
+        )
+        for j, mode_name in enumerate(modes, 1):
+            TransportationMode.objects.create(
+                category=category,
+                name=mode_name,
+                order=j
+            )
+
+    # 여행 목적 생성
+    purposes = [
+        '휴식', '관광', '쇼핑', '음식', '문화체험', '액티비티', '비즈니스', '가족여행'
+    ]
+    for i, name in enumerate(purposes, 1):
+        TravelPurpose.objects.create(
+            name=name,
+            order=i
+        )
+
+    # 여행 스타일 생성
+    styles = [
+        '럭셔리', '경제적', '자연친화', '도시탐방', '힐링', '액티비티', '문화탐방', '맛집투어'
+    ]
+    for i, name in enumerate(styles, 1):
+        TravelStyle.objects.create(
+            name=name,
+            order=i
+        )
+
+    # 중요 요소 생성
+    factors = [
+        '가격', '편의성', '안전성', '접근성', '환경', '서비스', '위치', '시설'
+    ]
+    for i, name in enumerate(factors, 1):
+        ImportantFactor.objects.create(
+            name=name,
+            order=i
+        )
+
+    # 날씨 카테고리 및 선호 날씨 생성
+    weather_categories = [
+        ('계절', [
+            '봄', '여름', '가을', '겨울'
+        ]),
+        ('날씨', [
+            '맑음', '흐림', '비', '눈'
+        ]),
+        ('온도', [
+            '따뜻함', '시원함', '추움'
+        ])
+    ]
+    for i, (category_name, weathers) in enumerate(weather_categories, 1):
+        category = WeatherCategory.objects.create(
+            name=category_name,
+            order=i
+        )
+        for j, weather_name in enumerate(weathers, 1):
+            PreferredWeather.objects.create(
+                category=category,
+                name=weather_name,
+                order=j
+            )
 
 class Migration(migrations.Migration):
 
@@ -15,130 +125,155 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Destination',
+            name='City',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('country', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True)),
+                ('name', models.CharField(max_length=100, verbose_name='도시명')),
+                ('is_active', models.BooleanField(default=True, verbose_name='활성화 여부')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
             ],
+            options={
+                'verbose_name': '도시',
+                'verbose_name_plural': '도시',
+                'ordering': ['order', 'name'],
+            },
         ),
         migrations.CreateModel(
-            name='TravelOptionCategory',
+            name='TransportationCategory',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=50, verbose_name='교통 카테고리')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
             ],
+            options={
+                'verbose_name': '교통 카테고리',
+                'verbose_name_plural': '교통 카테고리',
+                'ordering': ['order', 'name'],
+            },
         ),
         migrations.CreateModel(
-            name='GroupMember',
+            name='TransportationMode',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_admin', models.BooleanField(default=False)),
-                ('joined_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('name', models.CharField(max_length=50, verbose_name='교통 수단')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
+                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modes', to='travel_input.transportationcategory', verbose_name='교통 카테고리')),
             ],
+            options={
+                'verbose_name': '교통 수단',
+                'verbose_name_plural': '교통 수단',
+                'ordering': ['category', 'order', 'name'],
+            },
         ),
         migrations.CreateModel(
-            name='GroupTravel',
+            name='TravelPurpose',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='그룹명')),
-                ('description', models.TextField(verbose_name='그룹 설명')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_groups', to=settings.AUTH_USER_MODEL)),
-                ('members', models.ManyToManyField(related_name='joined_groups', through='travel_input.GroupMember', to=settings.AUTH_USER_MODEL)),
+                ('name', models.CharField(max_length=50, verbose_name='여행 목적')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
             ],
+            options={
+                'verbose_name': '여행 목적',
+                'verbose_name_plural': '여행 목적',
+                'ordering': ['order', 'name'],
+            },
         ),
         migrations.CreateModel(
-            name='GroupMessage',
+            name='TravelStyle',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='travel_input.grouptravel')),
+                ('name', models.CharField(max_length=50, verbose_name='여행 스타일')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
             ],
+            options={
+                'verbose_name': '여행 스타일',
+                'verbose_name_plural': '여행 스타일',
+                'ordering': ['order', 'name'],
+            },
         ),
-        migrations.AddField(
-            model_name='groupmember',
-            name='group',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='travel_input.grouptravel'),
+        migrations.CreateModel(
+            name='ImportantFactor',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=50, verbose_name='중요 요소')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
+            ],
+            options={
+                'verbose_name': '중요 요소',
+                'verbose_name_plural': '중요 요소',
+                'ordering': ['order', 'name'],
+            },
+        ),
+        migrations.CreateModel(
+            name='WeatherCategory',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=50, verbose_name='날씨 카테고리')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
+            ],
+            options={
+                'verbose_name': '날씨 카테고리',
+                'verbose_name_plural': '날씨 카테고리',
+                'ordering': ['order', 'name'],
+            },
+        ),
+        migrations.CreateModel(
+            name='PreferredWeather',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=50, verbose_name='선호 날씨')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
+                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='weathers', to='travel_input.weathercategory', verbose_name='날씨 카테고리')),
+            ],
+            options={
+                'verbose_name': '선호 날씨',
+                'verbose_name_plural': '선호 날씨',
+                'ordering': ['category', 'order', 'name'],
+            },
+        ),
+        migrations.CreateModel(
+            name='District',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100, verbose_name='구/군/읍/면')),
+                ('is_active', models.BooleanField(default=True, verbose_name='활성화 여부')),
+                ('order', models.IntegerField(default=0, verbose_name='정렬 순서')),
+                ('city', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='districts', to='travel_input.city', verbose_name='도시')),
+            ],
+            options={
+                'verbose_name': '구/군/읍/면',
+                'verbose_name_plural': '구/군/읍/면',
+                'ordering': ['city', 'order', 'name'],
+            },
         ),
         migrations.CreateModel(
             name='Schedule',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200, verbose_name='일정 제목')),
-                ('destination', models.CharField(max_length=200, verbose_name='여행지')),
+                ('title', models.CharField(default='새로운 여행 계획', max_length=200, verbose_name='일정 제목')),
                 ('start_date', models.DateField(verbose_name='시작일')),
-                ('end_date', models.DateField(blank=True, null=True, verbose_name='종료일')),
-                ('budget', models.DecimalField(blank=True, decimal_places=0, max_digits=10, null=True, verbose_name='예산')),
-                ('notes', models.TextField(blank=True, null=True, verbose_name='메모')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('end_date', models.DateField(verbose_name='종료일')),
+                ('budget', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='예산')),
+                ('notes', models.TextField(blank=True, verbose_name='메모')),
+                ('age_group', models.CharField(choices=[('10대', '10대'), ('20대', '20대'), ('30대', '30대'), ('40대', '40대'), ('50대', '50대'), ('60대 이상', '60대 이상')], default='20대', max_length=50, verbose_name='연령대')),
+                ('ai_response', models.TextField(blank=True, verbose_name='AI 응답')),
+                ('user_feedback', models.TextField(blank=True, verbose_name='사용자 피드백')),
+                ('ai_feedback_response', models.TextField(blank=True, verbose_name='AI 피드백 응답')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
+                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
+                ('city', models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='schedules', to='travel_input.city', verbose_name='도시')),
+                ('district', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='schedules', to='travel_input.district', verbose_name='구/군/읍/면')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='schedules', to=settings.AUTH_USER_MODEL, verbose_name='사용자')),
+                ('travel_purpose', models.ManyToManyField(to='travel_input.travelpurpose', verbose_name='여행 목적')),
+                ('travel_style', models.ManyToManyField(to='travel_input.travelstyle', verbose_name='여행 스타일')),
+                ('important_factors', models.ManyToManyField(to='travel_input.importantfactor', verbose_name='중요 요소')),
+                ('transportation_mode', models.ManyToManyField(to='travel_input.transportationmode', verbose_name='교통 수단')),
             ],
             options={
                 'verbose_name': '여행 일정',
-                'verbose_name_plural': '여행 일정들',
-                'ordering': ['-created_at', '-start_date'],
+                'verbose_name_plural': '여행 일정',
+                'ordering': ['-created_at'],
             },
         ),
-        migrations.CreateModel(
-            name='Place',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('visit_date', models.DateField()),
-                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='places', to='travel_input.schedule')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Participant',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('age', models.IntegerField(blank=True, null=True)),
-                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='participants', to='travel_input.schedule')),
-            ],
-        ),
-        migrations.AddField(
-            model_name='grouptravel',
-            name='schedule',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_travels', to='travel_input.schedule'),
-        ),
-        migrations.CreateModel(
-            name='Budget',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.CharField(max_length=100)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='budgets', to='travel_input.schedule')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Transport',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(max_length=50)),
-                ('departure', models.CharField(max_length=100)),
-                ('arrival', models.CharField(max_length=100)),
-                ('time', models.DateTimeField()),
-                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transports', to='travel_input.schedule')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='TravelOption',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='options', to='travel_input.traveloptioncategory')),
-            ],
-        ),
-        migrations.AlterUniqueTogether(
-            name='groupmember',
-            unique_together={('group', 'user')},
-        ),
+        migrations.RunPython(create_initial_data),
     ]

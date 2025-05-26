@@ -8,9 +8,13 @@ from faker import Faker
 from openai import OpenAI
 from django.conf import settings
 import json
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 from travel_input.forms import ScheduleForm
-from travel_input.models import Schedule, Destination
+from travel_input.models import Schedule, City, District
 
 @login_required
 def schedule_create(request):
@@ -21,53 +25,8 @@ def schedule_create(request):
             schedule.user = request.user
             schedule.save()
             form.save_m2m()  # ✅ ManyToManyField 저장
-
-            # ✅ 카테고리별 프롬프트 조립
-            purposes = [p.name for p in schedule.travel_purpose.all()]
-            styles = [s.name for s in schedule.travel_style.all()]
-            factors = [f.name for f in schedule.important_factors.all()]
-
-            purpose_text = f"이 여행은 {', '.join(purposes)}을(를) 목적으로 합니다." if purposes else ""
-            style_text = f"여행 스타일은 {', '.join(styles)}을(를) 선호합니다." if styles else ""
-            factor_text = f"특히 {', '.join(factors)}에 중점을 두고 싶습니다." if factors else ""
-
-            # ✅ 프롬프트 최종 조립
-            prompt = f"""
-당신은 여행 일정 전문가입니다. 다음 정보를 바탕으로 여행 계획을 구성해 주세요.
-
-- 여행 제목: {schedule.title}
-- 여행지: {schedule.destination}
-- 여행 날짜: {schedule.start_date} ~ {schedule.end_date}
-{purpose_text}
-{style_text}
-{factor_text}
-- 메모(특이사항): {schedule.notes or '없음'}
-
-각 날짜별로 추천 일정과 장소, 활동을 포함해 주세요.
-""".strip()
-
-            try:
-                client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "당신은 여행 일정 전문가입니다."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    max_tokens=800,
-                    temperature=0.7,
-                )
-                ai_answer = response.choices[0].message.content.strip()
-                schedule.ai_response = ai_answer
-                schedule.save()
-            except Exception as e:
-                ai_answer = f"AI 응답 오류: {str(e)}"
-
-            return render(request, 'travel_input/schedule_detail.html', {
-                'schedule': schedule,
-                'ai_answer': ai_answer,
-            })
-
+            messages.success(request, '여행 일정이 성공적으로 생성되었습니다.')
+            return redirect('travel_input:schedule_list')
     else:
         form = ScheduleForm()
 
@@ -254,7 +213,7 @@ def generate_ai_style_schedules(request):
             start = date.today() + timedelta(days=random.randint(1, 30))
             end = start + timedelta(days=random.randint(2, 5))
             dest_name = random.choice(destinations)
-            dest_obj, _ = Destination.objects.get_or_create(name=dest_name)
+            dest_obj, _ = City.objects.get_or_create(name=dest_name)
 
             Schedule.objects.create(
                 user=request.user,
@@ -291,7 +250,7 @@ def generate_dummy_schedules(request):
             Schedule.objects.create(
                 user=request.user,
                 title='기본 더미 일정',
-                destination=Destination.objects.order_by('?').first(),
+                destination=City.objects.order_by('?').first(),
                 start_date=date.today(),
                 end_date=date.today() + timedelta(days=3),
                 notes='자동 생성된 기본 일정입니다.',
@@ -340,3 +299,9 @@ def delete_selected_schedules(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     else:
         return JsonResponse({'success': False, 'error': 'POST 요청만 허용됩니다.'}, status=405)
+
+@login_required
+def load_districts(request):
+    city_id = request.GET.get('city')
+    districts = District.objects.filter(city_id=city_id).order_by('name')
+    return render(request, 'travel_input/district_dropdown_list_options.html', {'districts': districts})
