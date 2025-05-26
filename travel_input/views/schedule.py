@@ -110,7 +110,9 @@ def schedule_detail(request, pk):
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "당신은 주어진 텍스트의 핵심 키워드를 추출하는 전문가입니다. 불필요한 설명 없이 키워드 하나만 응답하세요."},
+                    {"role": "system", 
+                     "content": "당신은 주어진 텍스트의 핵심 키워드를 추출하는 전문가입니다. \
+                     불필요한 설명 없이 키워드 하나만 응답하세요."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=50,
@@ -128,7 +130,11 @@ def schedule_detail(request, pk):
             if question:
                 try:
                     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                    prompt = f"""일정 정보:\n- 제목: {schedule.title}\n- 날짜: {schedule.start_date} ~ {schedule.end_date}\n- 목적지: {schedule.destination}\n- 비고: {schedule.notes}\n\n질문: {question}"""
+                    prompt = f"""일정 정보:\n- 제목: {schedule.title}\n- \
+                                 날짜: {schedule.start_date} ~ {schedule.end_date}\n- \
+                                 목적지: {schedule.destination}\n- \
+                                 비고: {schedule.notes}\n\n \
+                                 질문: {question}"""
                     response = client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
@@ -148,7 +154,12 @@ def schedule_detail(request, pk):
             if feedback:
                 try:
                     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                    prompt = f"""사용자의 여행 일정에 대한 피드백입니다.\n\n일정 제목: {schedule.title}\n여행 날짜: {schedule.start_date} ~ {schedule.end_date}\n여행지: {schedule.destination}\n사용자 피드백: {feedback}\n\n이 피드백을 바탕으로 일정을 어떻게 개선할 수 있을지 제안해 주세요."""
+                    prompt = f"""사용자의 여행 일정에 대한 피드백입니다.\n\n \
+                                 일정 제목: {schedule.title}\n \
+                                 여행 날짜: {schedule.start_date} ~ {schedule.end_date}\n \
+                                 여행지: {schedule.destination}\n \
+                                 사용자 피드백: {feedback}\n\n이 피드백을 바탕으로 \ 
+                                 일정을 어떻게 개선할 수 있을지 제안해 주세요."""
                     response = client.chat.completions.create(
                         model="gpt-4",
                         messages=[
@@ -320,7 +331,8 @@ def delete_selected_schedules(request):
                 return JsonResponse({'success': False, 'error': '선택된 일정이 없습니다.'}, status=400)
 
             # 사용자 소유의 일정만 삭제하도록 필터링
-            deleted_count, _ = Schedule.objects.filter(user=request.user, id__in=selected_ids).delete()
+            deleted_count, _ = Schedule.objects.filter(user=request.user, id__in=selected_ids). \
+                                                                                        delete()
             return JsonResponse({'success': True, 'deleted_count': deleted_count})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': '잘못된 JSON 형식입니다.'}, status=400)

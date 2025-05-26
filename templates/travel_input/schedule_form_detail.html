@@ -3,68 +3,145 @@
 
 {% block extra_css %}
 <style>
+    .form-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .page-title {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 2.2rem;
+        margin-bottom: 40px;
+        font-weight: 700;
+    }
+
     .form-section {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
     }
 
     .form-section h3 {
-        color: #007acc;
-        margin-bottom: 20px;
-        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        font-size: 1.3rem;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        font-weight: 600;
+        justify-content: center;
+    }
+
+    .form-section h3 i {
+        color: #007acc;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .form-group label {
         display: block;
-        margin-bottom: 8px;
-        color: #333;
-        font-weight: 500;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
     }
 
     .form-group input[type="text"],
     .form-group textarea,
     .form-group select {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
         font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
     }
 
     .form-group textarea {
-        min-height: 100px;
+        min-height: 120px;
         resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #007acc;
+        box-shadow: 0 0 0 3px rgba(0,122,204,0.1);
+        outline: none;
     }
 
     .help-text {
         font-size: 0.9rem;
-        color: #666;
-        margin-top: 5px;
+        color: #6c757d;
+        margin-top: 8px;
+        font-style: italic;
+    }
+
+    .checkbox-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        background: #f8f9fa;
+        border-color: #007acc;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
     }
 
     .submit-btn {
         background: #007acc;
         color: white;
-        padding: 12px 30px;
+        padding: 15px 40px;
         border: none;
-        border-radius: 6px;
+        border-radius: 12px;
         font-size: 1.1rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.3s ease;
+        transition: all 0.3s ease;
+        display: block;
+        margin: 40px auto 0;
+        min-width: 200px;
+        text-align: center;
     }
 
     .submit-btn:hover {
         background: #005f99;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,122,204,0.2);
+    }
+
+    .error {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 5px;
     }
 </style>
 {% endblock %}
@@ -117,8 +194,27 @@
         <!-- 교통 정보 -->
         <div class="form-section">
             <h3><i class="fas fa-plane"></i>교통 정보</h3>
+            <!-- 선호 교통수단 -->
             <div class="form-group">
-                <label for="{{ form.transport_info.id_for_label }}">교통 정보</label>
+              <label class="form-label">{{ form.transportation_mode.label|default:'선호 교통수단' }}</label>
+              {% regroup form.transportation_mode.field.queryset by category as categorized_modes %}
+              {% for category in categorized_modes %}
+                <div class="category-section">
+                  <h4>{{ category.grouper.name }}</h4> {# 카테고리 제목 #}
+                  <div class="checkbox-wrapper">
+                    {% for mode in category.list %}
+                      <label class="checkbox-item">
+                        {{ mode.name }} {{ mode.tag }}
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+              {% if form.transportation_mode.errors %}<div class="error">{{ form.transportation_mode.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.transport_info.id_for_label }}">교통 정보 상세</label>
                 {{ form.transport_info }}
                 <div class="help-text">{{ form.transport_info.help_text }}</div>
             </div>

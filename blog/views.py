@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
+                                 DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.http import JsonResponse
@@ -54,7 +55,8 @@ class SentimentAnalysisView(TemplateView):
             # 결과를 데이터베이스에 저장 (중복 저장 방지 로직이 필요할 수 있음)
             # 현재는 단순히 검색될 때마다 저장하지만, 실제 서비스에서는 관리 필요
             for post_data in all_posts:
-                 sentiment = 'positive' if post_data in positive else 'negative' if post_data in negative else 'neutral'
+                 sentiment = ('positive' if post_data in positive else 'negative' 
+                              if post_data in negative else 'neutral')
                  BlogPost.objects.create(
                      title=post_data['title'],
                      link=post_data['link'],

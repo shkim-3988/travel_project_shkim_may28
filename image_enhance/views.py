@@ -56,7 +56,8 @@ def process_image(request):
             
             # Load pretrained weights
             model_dir = os.path.dirname(os.path.abspath(__file__))
-            pretrained_path = os.path.join(model_dir, 'nafnet_model', 'experiments', 'pretrained_models', 'NAFNet-REDS-width64.pth')
+            pretrained_path = (os.path.join(model_dir, 'nafnet_model', 'experiments', 
+                                            'pretrained_models', 'NAFNet-REDS-width64.pth'))
             
             if os.path.exists(pretrained_path):
                 checkpoint = torch.load(pretrained_path, map_location='cpu')
