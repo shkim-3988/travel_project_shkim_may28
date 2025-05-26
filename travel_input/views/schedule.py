@@ -19,8 +19,10 @@ from travel_input.models import Schedule, City, District
 @login_required
 def schedule_create(request):
     if request.method == 'POST':
+        print("Received POST request:", request.POST)
         form = ScheduleForm(request.POST)
         if form.is_valid():
+            print("Form is valid.")
             schedule = form.save(commit=False)
             schedule.user = request.user
             schedule.save()
@@ -28,6 +30,7 @@ def schedule_create(request):
             messages.success(request, '여행 일정이 성공적으로 생성되었습니다.')
             return redirect('travel_input:schedule_list')
     else:
+        print("Received GET request.")
         form = ScheduleForm()
 
     return render(request, 'travel_input/schedule_form.html', {'form': form})
