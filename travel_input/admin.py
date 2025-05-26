@@ -79,7 +79,6 @@ class TransportationModeAdmin(admin.ModelAdmin):
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
     list_display = ('title', 'destination', 'start_date', 'end_date', 'display_transportation_mode', 'created_at')
     list_filter = ('start_date', 'end_date')
     search_fields = ('title', 'destination__name')
@@ -123,14 +122,3 @@ class PreferredWeatherAdmin(admin.ModelAdmin):
     search_fields = ('name', 'category__name')
     ordering = ('category__order', 'order', 'name')
     fields = ('category', 'name', 'order')
-=======
-    list_display = ['title', 'user', 'city', 'start_date', 'end_date', 'created_at']
-    list_filter = ['city', 'start_date', 'end_date']
-    search_fields = ['title', 'user__username', 'city__name']
-    date_hierarchy = 'start_date'
-    ordering = ['-created_at']
-    filter_horizontal = ('travel_purpose', 'travel_style', 'destinations', 'activities', 'important_factors', 'transportation_mode')
-
-admin.site.register(Destination)
-admin.site.register(Activity)
->>>>>>> c894644 (허재 설문 폼 개선)
